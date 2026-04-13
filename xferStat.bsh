@@ -1,0 +1,25 @@
+#!/bin/bash
+
+sourceFile=${1}
+destFile=${2}
+
+copyStat() {
+  sourceFile=${1}
+  destFile=${2}
+
+  sourceSize="$(stat -c %s ${sourceFile})"
+  destSize="$(stat -c %s ${destFile})"
+
+  R1=$(echo "scale=3; ${sourceSize}/${destSize}" | bc)
+  R2=$(echo "scale=3; 100/${R1}" | bc)
+
+  fmt="%-15s %-15s %4s \n"
+  printf "${fmt}" "Source Size" "Dest Size" "% Copied"
+  printf "${fmt}" "${sourceSize}" "${destSize}" "${R2}"
+
+}
+
+while echo; do
+  copyStat "${sourceFile}" "${destFile}"
+  sleep 5
+done
