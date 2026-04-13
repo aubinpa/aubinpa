@@ -1,11 +1,11 @@
 #!/bin/bash
 
-sourceFile=${1}
-destFile=${2}
+sourceFile="${1}"
+destFile="${2}"
 
 copyStat() {
-  sourceFile=${1}
-  destFile=${2}
+  sourceFile="${1}"
+  destFile="${2}"
 
   sourceSize="$(stat -c %s ${sourceFile})"
   destSize="$(stat -c %s ${destFile})"
