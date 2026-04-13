@@ -13,10 +13,9 @@ copyStat() {
   R1=$(echo "scale=3; ${sourceSize}/${destSize}" | bc)
   R2=$(echo "scale=3; 100/${R1}" | bc)
 
-  fmt1="%-15s %-15s %4s \n"
-  fmt2="%-15s %-15s %4s \r"
-  printf "${fmt1}" "Source Size" "Dest Size" "% Copied"
-  printf "${fmt2}" "${sourceSize}" "${destSize}" "${R2}"
+  fmt="%-15s %-15s %4s \n %-15s %-15s %4s \r"
+  
+  printf "${fmt}" "Source Size" "Dest Size" "% Copied" "${sourceSize}" "${destSize}" "${R2}"
 
 }
 
