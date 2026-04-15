@@ -1,11 +1,30 @@
 #!/bin/bash
 
-sourceFile="${1}"
-destFile="${2}"
+if [ ${DEBUG} ]; then
+  sourceFile="/tmp/f1"
+  touch "${sourceFile}"
+  truncate -s 0 "${sourceFile}"
+  fallocate -l 10240 "${sourceFile}"
+
+  destFile="/tmp/f2"
+  touch "${destFile}"
+  truncate -s 0 "${destFile}"
+  fallocate -l 1024 "${destFile}"
+else
+  sourceFile="${1}"
+  destFile="${2}"
+fi
+
+FIRSTRUN=1
+
+lastSize=0
+sourceSize=1
+destSize=3
 
 copyStat() {
   sourceFile="${1}"
   destFile="${2}"
+  lastSize="${3}"
 
   sourceSize="$(stat -c %s ${sourceFile})"
   destSize="$(stat -c %s ${destFile})"
@@ -13,15 +32,24 @@ copyStat() {
   R1=$(echo "scale=3; ${sourceSize}/${destSize}" | bc)
   R2=$(echo "scale=3; 100/${R1}" | bc)
 
-  fmt1="%-15s %-15s %4s \n"
-  fmt2="%-15s %-15s %4s \033[0K\r"
-  
-  printf "${fmt}" "Source Size" "Dest Size" "% Copied" 
-  printf "${fmt2}" "${sourceSize}" "${destSize}" "${R2}"
+  fmt1="%-15s %-15s %4s %-15s \n"
+  fmt2="%-15s %-15s %4s %-15s \033[0K\r"
 
+  if [ ${FIRSTRUN} -eq 1 ]; then
+    
+    printf "${fmt}" "Source Size" "Dest Size" "% Copied" "Size Delta"
+    printf "${fmt2}" "${sourceSize}" "${destSize}" "${R2}" "null"
+    FIRSTRUN=0
+  else
+    sizeDelta=$(echo "(${destSize}-${lastSize})/1024" | bc )
+    tput cuu1
+    printf "${fmt2}" "${sourceSize}" "${destSize}" "${R2}" "${sizeDelta}"
+  fi
+  export sourceSize
+  export lastSize="${destSize}"
 }
 
-while echo; do
-  copyStat "${sourceFile}" "${destFile}"
+while [ ${lastSize} -ne ${sourceSize} ]; do
+  copyStat "${sourceFile}" "${destFile}" "${lastSize}"
   sleep 5
 done
